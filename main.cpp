@@ -92,6 +92,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	constexpr uint64_t status_interval = 16 * 1024 * 1024;
 	std::array<decltype(prng)::result_type, 1024> buffer{};
 	uint64_t bytes_left = size;
 	while (bytes_left > 0) {
@@ -104,6 +105,13 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 		bytes_left -= bytes_to_write;
+
+
+		const auto bytes_written = size - bytes_left;
+		if (bytes_written % status_interval == 0 || bytes_left == 0) {
+			const auto wrote_percent = double(bytes_written) / size * 100.0;
+			std::cout << "Writing (" << std::setprecision(1) << std::fixed << wrote_percent << ")\r" << std::flush;
+		}
 	}
 	if (std::fflush(f_out)) {
 		std::cerr << "Failed to flush file writes\n";
@@ -152,10 +160,16 @@ int main(int argc, char* argv[]) {
 		for(size_t i = 0; i < bytes_to_read; ++i) {
 			if (read_bytes[i] != buffer_bytes[i]) ++num_errors;
 		}
+
+		const auto bytes_read = size - bytes_left;
+		if (bytes_read % status_interval == 0 || bytes_left == 0) {
+			const auto read_percent = double(bytes_read) / size * 100.0;
+			std::cout << "Reading (" << std::setprecision(1) << std::fixed << read_percent << ")\r" << std::flush;
+		}
 	}
 
 	const auto error_percent = double(num_errors) / size * 100.0;
 
 	std::cout << "Read " << size << " bytes\n";
-	std::cout << "Found " << num_errors << " errors (" << std::setprecision(1) <<  error_percent << ")";
+	std::cout << "Found " << num_errors << " errors (" << std::setprecision(1) << std::fixed <<  error_percent << ")\n";
 }
