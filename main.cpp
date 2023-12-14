@@ -168,8 +168,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	const auto error_percent = double(num_errors) / size * 100.0;
+	const auto error_rate_per_mib = double(num_errors) / size * 1024 * 1024;
 
 	std::cout << "Read " << size << " bytes\n";
-	std::cout << "Found " << num_errors << " errors (" << std::setprecision(1) << std::fixed <<  error_percent << "%)\n";
+	std::cout << "Found " << num_errors << " errors (" << std::setprecision(4) << std::fixed <<  error_rate_per_mib << " B/MiB)\n";
 }
